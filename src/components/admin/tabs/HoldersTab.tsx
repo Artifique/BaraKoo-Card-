@@ -178,7 +178,7 @@ export function HoldersTab({
                         <div className="flex items-center justify-end space-x-1.5">
                           {pathSlug && (
                             <Link href={`/${pathSlug}`} target="_blank">
-                              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-lg" title="Aperçu public">
+                              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-lg text-brand-green hover:bg-brand-green/10" title="Aperçu public">
                                 <Eye className="w-4 h-4" />
                               </Button>
                             </Link>
