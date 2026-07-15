@@ -22,6 +22,15 @@ export function DashboardTab({ holders, cards, stats }: DashboardTabProps) {
   const activeCardsCount = cards.filter(c => c.status === "active").length
   const avgConversion = totalScans > 0 ? Math.round((totalSaves / totalScans) * 100) : 0
 
+  // Répartition QR vs NFC
+  const totalQrScans = stats.reduce((acc, curr) => acc + curr.qrScans, 0)
+  const totalNfcScans = stats.reduce((acc, curr) => acc + curr.nfcScans, 0)
+  
+  // Par défaut s'il n'y a pas de scan, on met 50/50 pour la jauge
+  const aDesScans = totalScans > 0
+  const qrPercent = aDesScans ? Math.round((totalQrScans / totalScans) * 100) : 50
+  const nfcPercent = aDesScans ? (100 - qrPercent) : 50
+
   return (
     <div className="space-y-6">
       {/* Grille de cartes KPI réutilisables */}
@@ -128,7 +137,10 @@ export function DashboardTab({ holders, cards, stats }: DashboardTabProps) {
             <div className="relative w-40 h-40 flex items-center justify-center">
               {/* Cercle visuel décoratif */}
               <div className="absolute inset-0 rounded-full border-8 border-brand-orange/20" />
-              <div className="absolute inset-0 rounded-full border-8 border-brand-orange border-t-transparent border-l-transparent" />
+              <div 
+                className="absolute inset-0 rounded-full border-8 border-brand-orange border-t-transparent border-l-transparent transition-transform duration-500" 
+                style={{ transform: `rotate(${Math.min(360, (qrPercent / 100) * 360)}deg)` }}
+              />
               <div className="flex flex-col items-center">
                 <span className="text-3xl font-extrabold text-foreground">{totalScans}</span>
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Visites</span>
@@ -141,10 +153,12 @@ export function DashboardTab({ holders, cards, stats }: DashboardTabProps) {
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-orange" />
                   QR Code (Scans Web)
                 </span>
-                <span className="font-bold text-foreground">65% ({Math.round(totalScans * 0.65)})</span>
+                <span className="font-bold text-foreground">
+                  {aDesScans ? `${qrPercent}% (${totalQrScans})` : "0% (0)"}
+                </span>
               </div>
               <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
-                <div className="bg-brand-orange h-full" style={{ width: "65%" }} />
+                <div className="bg-brand-orange h-full transition-all duration-500" style={{ width: `${aDesScans ? qrPercent : 0}%` }} />
               </div>
               
               <div className="flex justify-between items-center text-xs pt-1">
@@ -152,10 +166,12 @@ export function DashboardTab({ holders, cards, stats }: DashboardTabProps) {
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-green" />
                   Ondes NFC (Contact direct)
                 </span>
-                <span className="font-bold text-foreground">35% ({Math.round(totalScans * 0.35)})</span>
+                <span className="font-bold text-foreground">
+                  {aDesScans ? `${nfcPercent}% (${totalNfcScans})` : "0% (0)"}
+                </span>
               </div>
               <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
-                <div className="bg-brand-green h-full" style={{ width: "35%" }} />
+                <div className="bg-brand-green h-full transition-all duration-500" style={{ width: `${aDesScans ? nfcPercent : 0}%` }} />
               </div>
             </div>
           </CardContent>
