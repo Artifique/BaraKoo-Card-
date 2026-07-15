@@ -61,8 +61,8 @@ export async function createHolder(data: CreateCardHolderDto): Promise<CardHolde
       instagram: instagram ?? "",
       twitter: twitter ?? "",
       siteWeb: website ?? "",
-      organizationId: organizationId ?? null,
-      serviceId: serviceId ?? null
+      organizationId: organizationId || null,
+      serviceId: serviceId || null
     },
     include: {
       service: true
@@ -94,8 +94,8 @@ export async function updateHolder(id: string, data: UpdateCardHolderDto): Promi
   if (data.instagram !== undefined)    dataUpdate.instagram = data.instagram
   if (data.twitter !== undefined)      dataUpdate.twitter = data.twitter
   if (data.website !== undefined)      dataUpdate.siteWeb = data.website
-  if (data.organizationId !== undefined) dataUpdate.organizationId = data.organizationId
-  if (data.serviceId !== undefined)    dataUpdate.serviceId = data.serviceId
+  if (data.organizationId !== undefined) dataUpdate.organizationId = data.organizationId || null
+  if (data.serviceId !== undefined)    dataUpdate.serviceId = data.serviceId || null
 
   try {
     const updated = await prisma.cardHolder.update({
