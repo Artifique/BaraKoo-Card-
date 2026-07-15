@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useState, useEffect } from "react"
-import { CreditCard, ArrowRight, Wifi, AlertTriangle } from "lucide-react"
+import { CreditCard, ArrowRight, Wifi, AlertTriangle, Smartphone } from "lucide-react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { CardHolder, Card as CardType } from "@/lib/types"
@@ -96,89 +96,141 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
 
         {selectedCard && activeHolder ? (
           <div className="space-y-4">
-            {/* Rendu Recto de la carte physique */}
-            <div className="w-full aspect-[1.58/1] rounded-3xl bg-[#061830] border border-white/10 p-5 shadow-2xl relative flex flex-col justify-between overflow-hidden text-white">
-              
-              {/* Lignes décoratives stylisées */}
-              <div className="absolute right-0 top-0 bottom-0 w-32 border-l border-brand-orange/40 rounded-l-full overflow-hidden flex items-center justify-center pointer-events-none">
-                <div className="w-full h-[150%] border-l-2 border-brand-green/40 rounded-l-full" />
-              </div>
-
-              {/* Ligne haute : logo et antenne NFC */}
-              <div className="flex items-start justify-between z-10">
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-brand-orange flex items-center justify-center text-white font-extrabold text-sm shadow">
-                    B
-                  </div>
-                  <div>
-                    <span className="text-xs font-black text-white tracking-widest leading-none block">Baarako</span>
-                    <span className="text-[10px] text-brand-orange font-bold leading-none">Jobcard</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col items-end text-white/80">
-                  <Wifi className="w-4 h-4 text-white/60 rotate-90" />
-                  <span className="text-[7px] font-bold uppercase tracking-widest mt-1">NFC</span>
-                </div>
-              </div>
-
-              {/* Ligne centrale/basse : Photo et QR code */}
-              <div className="flex items-end space-x-3.5 z-10">
-                {/* Photo de profil */}
-                <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/20 shadow bg-brand-navy-light shrink-0">
-                  <Image
-                    src={activeHolder.avatarUrl || "/avatars/ousmane.png"}
-                    alt={activeHolder.name}
-                    fill
-                    className="object-cover object-top"
+            {/* Conteneur principal de la carte physique respectant le ratio standard d'une carte bancaire (CR80 : ~1.58) */}
+            <div
+              className="w-full rounded-3xl shadow-2xl relative overflow-hidden text-white select-none border border-white/10"
+              style={{
+                backgroundColor: "#0c2547",
+                aspectRatio: "1.586 / 1",
+              }}
+            >
+              {/* Vague décorative tricolore (Orange, Vert, Bleu) */}
+              <div className="absolute right-[33%] inset-y-0 w-8 pointer-events-none z-10 overflow-hidden">
+                <svg
+                  viewBox="0 0 100 500"
+                  className="h-full w-full"
+                  preserveAspectRatio="none"
+                >
+                  {/* Ligne orange */}
+                  <path
+                    d="M 100 0 C 40 150, 0 300, 30 500 L 100 500 Z"
+                    fill="#F97316"
                   />
+                  {/* Ligne verte */}
+                  <path
+                    d="M 100 0 C 60 150, 25 300, 55 500 L 100 500 Z"
+                    fill="#16A34A"
+                  />
+                  {/* Masquage de fond */}
+                  <path
+                    d="M 100 0 C 75 150, 48 300, 75 500 L 100 500 Z"
+                    fill="#0c2547"
+                  />
+                </svg>
+              </div>
+
+              {/* Contenu global avec disposition Flexbox */}
+              <div className="absolute inset-0 flex">
+                
+                {/* ── PARTIE GAUCHE (Logo, Info Titulaire, Photo) ── */}
+                <div className="w-[66%] h-full flex flex-col justify-between p-4 z-20">
+                  {/* Logo et slogan */}
+                  <div className="flex items-center space-x-2">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-black/40 border border-white/10 shrink-0 flex items-center justify-center relative">
+                      <Image
+                        src="/images/BarakoKeneyanoir.png"
+                        alt="Logo"
+                        fill
+                        className="object-cover scale-110"
+                      />
+                    </div>
+                    <div className="flex flex-col leading-[1.1]">
+                      <div className="flex items-baseline space-x-1">
+                        <span className="text-sm font-extrabold tracking-wide text-white">Baarako</span>
+                        <span className="text-sm font-extrabold tracking-wide text-[#F97316]">Jobcard</span>
+                      </div>
+                      <span className="text-[7.5px] text-white/80 font-medium tracking-wide">
+                        Votre carrière entre de bonnes mains
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Détails du titulaire avec Photo */}
+                  <div className="flex items-end space-x-3 mt-auto">
+                    {/* Photo de profil */}
+                    <div className="w-16 h-[84px] rounded-xl overflow-hidden border border-white/20 shadow-md shrink-0 bg-[#0B2040] relative">
+                      <Image
+                        src={activeHolder.avatarUrl || "/avatars/ousmane.png"}
+                        alt={activeHolder.name}
+                        fill
+                        className="object-cover object-top"
+                      />
+                    </div>
+
+                    {/* Informations textuelles */}
+                    <div className="flex flex-col space-y-1 mb-1 min-w-0">
+                      <h4 className="text-sm font-bold text-white tracking-wide truncate leading-none">
+                        {activeHolder.name}
+                      </h4>
+                      <p className="text-[9.5px] text-[#16A34A] font-semibold leading-none">
+                        {activeHolder.title}
+                      </p>
+
+                      {/* Badge DISPONIBLE / NON DISPONIBLE */}
+                      <div className="pt-1">
+                        <span className={`inline-block text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                          activeHolder.availability === "available"
+                            ? "bg-[#16A34A] text-white"
+                            : "bg-red-600 text-white"
+                        }`}>
+                          {activeHolder.availability === "available" ? "Disponible" : "Non Dispo"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ID en bas à gauche */}
+                  <div className="text-[8px] font-semibold text-[#16A34A] tracking-wider mt-1.5 leading-none">
+                    ID : {activeHolder.id}
+                  </div>
                 </div>
 
-                {/* Coordonnées textuelles */}
-                <div className="flex-1 min-w-0 pb-1">
-                  <span className="text-[9px] font-mono text-brand-green/70 block leading-none mb-1">
-                    {activeHolder.id}
-                  </span>
-                  <h4 className="text-xs font-bold text-white leading-tight truncate">
-                    {activeHolder.name}
-                  </h4>
-                  <p className="text-[9px] text-brand-green font-medium mt-0.5 truncate">
-                    {activeHolder.title}
-                  </p>
-                  
-                  <Badge
-                    variant={activeHolder.availability === "available" ? "success" : "destructive"}
-                    className="text-[7px] px-1.5 py-0 mt-2"
-                  >
-                    {activeHolder.availability === "available" ? "DISPONIBLE" : "NON DISPONIBLE"}
-                  </Badge>
-                </div>
+                {/* ── PARTIE DROITE (NFC, QR Code, Bouton Scan) ── */}
+                <div className="w-[34%] h-full flex flex-col justify-between items-center py-4 px-2 bg-[#0c2547]/80 border-l border-white/5 z-20">
+                  {/* NFC Logo & Text */}
+                  <div className="flex flex-col items-center text-center space-y-0.5">
+                    <Wifi className="w-5 h-5 text-white/90 rotate-90" />
+                    <span className="text-[9px] font-extrabold tracking-widest text-white">NFC</span>
+                    <span className="text-[6.5px] text-white/70 leading-tight">
+                      Approchez votre<br />téléphone
+                    </span>
+                  </div>
 
-                {/* Bloc QR Code */}
-                <div className="flex flex-col items-center space-y-1 self-center">
-                  <div className="w-14 h-14 bg-white p-1 rounded-lg shadow-md flex items-center justify-center">
+                  {/* QR Code */}
+                  <div className="bg-white p-1 rounded-xl shadow-lg w-16 h-16 flex items-center justify-center">
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${window.location.origin}/${selectedCard.slug}`}
-                      alt="QR Code Carte"
-                      className="w-full h-full"
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${window.location.origin}/${selectedCard.slug}`)}`}
+                      alt="QR Code"
+                      className="w-full h-full block"
                     />
                   </div>
-                  <span className="text-[6px] text-white/60 font-bold uppercase tracking-wider">Scan</span>
-                </div>
-              </div>
 
-              {/* Texte discret en bas */}
-              <div className="absolute bottom-2 left-5 text-[6px] text-white/40 z-10 uppercase tracking-widest">
-                Propriété exclusive de Baarako Card
+                  {/* Bouton Scannez-moi */}
+                  <div className="bg-[#F97316] text-white rounded-lg px-2 py-1 flex items-center justify-center space-x-1 shadow-md w-full max-w-[85px]">
+                    <Smartphone className="w-2.5 h-2.5 shrink-0" />
+                    <span className="text-[7.5px] font-extrabold tracking-wide whitespace-nowrap">Scannez-moi</span>
+                  </div>
+                </div>
+
               </div>
             </div>
-            
+
             {/* Guide d'information */}
             <div className="p-3 bg-muted/40 border border-border/20 rounded-2xl flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-brand-orange shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-[#F97316] shrink-0" />
               <p className="text-[10px] text-muted-foreground leading-snug">
                 Ce gabarit représente visuellement la carte physique finale NFC/QR. Si vous désactivez la carte,
-                toutes les requêtes de scan redirigeront vers une page d'indisponibilité.
+                toutes les requêtes de scan redirigeront vers une page d&apos;indisponibilité.
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { BarChart3, Users, CreditCard, Building2, ShoppingBag, Settings, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -59,20 +60,18 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
       flex flex-col justify-between overflow-y-auto
     ">
       {/* ─── Partie haute : logo + navigation ─── */}
-      <div className="flex flex-col space-y-8">
+      <div className="flex flex-col space-y-5">
 
-        {/* Logo Baarako Card */}
-        <div className="flex items-center space-x-3 py-2 border-b border-border/20">
-          <div className="w-9 h-9 rounded-xl bg-brand-orange flex items-center justify-center text-white font-extrabold text-lg glow-orange">
-            B
-          </div>
-          <div>
-            <span className="text-base font-bold text-foreground tracking-wider block leading-none">
-              BAARAKO CARD
-            </span>
-            <span className="text-[10px] text-brand-green font-semibold tracking-widest">
-              BACK-OFFICE
-            </span>
+        {/* Logo Baarako Card (Agrandit et sans écriture) */}
+        <div className="flex justify-center py-2 border-b border-border/20">
+          <div className="w-28 h-28 shrink-0 flex items-center justify-center relative">
+            <Image
+              src="/images/BarakoKeneya.jpeg"
+              alt="Logo Baarako Card"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
 
