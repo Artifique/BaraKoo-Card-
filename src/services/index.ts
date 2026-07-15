@@ -24,9 +24,16 @@ export {
 
 export {
   getAllOrganizations,
-  getOrganizationById
+  getOrganizationById,
+  createOrganization,
+  updateOrganization,
+  deleteOrganization
 } from "./OrganizationService"
 
 export {
-  getAllOrders
+  getAllOrders,
+  getOrderById,
+  createOrder,
+  updateOrder,
+  deleteOrder
 } from "./OrderService"

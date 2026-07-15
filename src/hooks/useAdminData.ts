@@ -24,59 +24,15 @@ export interface AdminData {
   mettreAJourCarte: (id: string, updates: Partial<Card>) => void
   /** Ajouter un titulaire localement après création */
   ajouterHolder: (holder: CardHolder) => void
+  // ─── Organisations ───
+  ajouterOrganisation: (org: Organization) => void
+  mettreAJourOrganisation: (id: string, updates: Partial<Organization>) => void
+  supprimerOrganisation: (id: string) => void
+  // ─── Commandes ───
+  ajouterCommande: (order: Order) => void
+  mettreAJourCommande: (id: string, updates: Partial<Order>) => void
+  supprimerCommande: (id: string) => void
 }
-
-// --------------------------------------------------------------------------
-// Données locales figées pour les organisations et commandes
-// (seront remplacées par des appels API Prisma une fois la DB connectée)
-// --------------------------------------------------------------------------
-
-const ORGANISATIONS_DEFAUT: Organization[] = [
-  {
-    id: "org-1",
-    name: "Baarako Jobcard",
-    logoUrl: "/avatars/ousmane.png",
-    sector: "Recrutement & Technologies",
-    description: "La plateforme de contact et de recrutement intelligente en Afrique.",
-    address: "Bamako, Mali",
-    website: "https://jobcard.africa",
-    phone: "+223 70 00 00 00",
-    email: "contact@jobcard.africa",
-  },
-]
-
-const COMMANDES_DEFAUT: Order[] = [
-  {
-    id: "ORD-2026-001",
-    clientName: "Sékou Keïta",
-    clientEmail: "sekou.keita@gmail.com",
-    quantity: 5,
-    offerType: "enterprise",
-    paymentStatus: "paid",
-    status: "delivered",
-    createdAt: "2026-07-10T14:30:00Z",
-  },
-  {
-    id: "ORD-2026-002",
-    clientName: "Ousmane Diarra",
-    clientEmail: "ousmane.diarra@baarako.com",
-    quantity: 1,
-    offerType: "nfc_qr",
-    paymentStatus: "paid",
-    status: "delivered",
-    createdAt: "2026-07-12T09:15:00Z",
-  },
-  {
-    id: "ORD-2026-003",
-    clientName: "Fatoumata Diallo",
-    clientEmail: "fatoumata.diallo@outlook.com",
-    quantity: 2,
-    offerType: "simple_qr",
-    paymentStatus: "pending",
-    status: "processing",
-    createdAt: "2026-07-14T16:45:00Z",
-  },
-]
 
 // --------------------------------------------------------------------------
 // Hook principal
@@ -86,27 +42,33 @@ export function useAdminData(): AdminData {
   const [holders, setHolders] = useState<CardHolder[]>([])
   const [cards, setCards] = useState<Card[]>([])
   const [stats, setStats] = useState<CardStats[]>([])
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Données statiques (à migrer vers API si besoin)
-  const organizations = ORGANISATIONS_DEFAUT
-  const orders = COMMANDES_DEFAUT
-
-  // Récupération des données depuis les routes API Next.js
+  // Récupération de toutes les données depuis les routes API Next.js
   const refetch = useCallback(async () => {
     try {
       setLoading(true)
 
-      // Récupérer les titulaires
-      const reponseHolders = await fetch("/api/holders")
-      const donneesHolders: CardHolder[] = await reponseHolders.json()
-      setHolders(donneesHolders)
+      // Récupérer en parallèle : titulaires, cartes, organisations, commandes
+      const [reponseHolders, reponseCartes, reponseOrgs, reponseOrders] = await Promise.all([
+        fetch("/api/holders"),
+        fetch("/api/cards"),
+        fetch("/api/organizations"),
+        fetch("/api/orders"),
+      ])
 
-      // Récupérer les cartes et statistiques associées
-      const reponseCartes = await fetch("/api/cards")
+      const donneesHolders: CardHolder[] = await reponseHolders.json()
       const donneesCartes: { cards: Card[]; stats: CardStats[] } = await reponseCartes.json()
+      const donneesOrgs: Organization[] = await reponseOrgs.json()
+      const donneesOrders: Order[] = await reponseOrders.json()
+
+      setHolders(donneesHolders)
       setCards(donneesCartes.cards)
       setStats(donneesCartes.stats)
+      setOrganizations(donneesOrgs)
+      setOrders(donneesOrders)
     } catch (erreur) {
       console.error("Erreur lors du chargement des données admin :", erreur)
     } finally {
@@ -119,19 +81,46 @@ export function useAdminData(): AdminData {
     refetch()
   }, [refetch])
 
-  // Mise à jour optimiste d'un titulaire (sans attendre le serveur)
+  // ─── Titulaires ───────────────────────────────────────────────────────────
+
   const mettreAJourHolder = useCallback((id: string, updates: Partial<CardHolder>) => {
     setHolders(prev => prev.map(h => (h.id === id ? { ...h, ...updates } : h)))
   }, [])
 
-  // Mise à jour optimiste d'une carte
   const mettreAJourCarte = useCallback((id: string, updates: Partial<Card>) => {
     setCards(prev => prev.map(c => (c.id === id ? { ...c, ...updates } : c)))
   }, [])
 
-  // Ajout d'un nouveau titulaire dans la liste locale
   const ajouterHolder = useCallback((holder: CardHolder) => {
     setHolders(prev => [...prev, holder])
+  }, [])
+
+  // ─── Organisations ────────────────────────────────────────────────────────
+
+  const ajouterOrganisation = useCallback((org: Organization) => {
+    setOrganizations(prev => [...prev, org])
+  }, [])
+
+  const mettreAJourOrganisation = useCallback((id: string, updates: Partial<Organization>) => {
+    setOrganizations(prev => prev.map(o => (o.id === id ? { ...o, ...updates } : o)))
+  }, [])
+
+  const supprimerOrganisation = useCallback((id: string) => {
+    setOrganizations(prev => prev.filter(o => o.id !== id))
+  }, [])
+
+  // ─── Commandes ────────────────────────────────────────────────────────────
+
+  const ajouterCommande = useCallback((order: Order) => {
+    setOrders(prev => [order, ...prev])
+  }, [])
+
+  const mettreAJourCommande = useCallback((id: string, updates: Partial<Order>) => {
+    setOrders(prev => prev.map(o => (o.id === id ? { ...o, ...updates } : o)))
+  }, [])
+
+  const supprimerCommande = useCallback((id: string) => {
+    setOrders(prev => prev.filter(o => o.id !== id))
   }, [])
 
   return {
@@ -145,5 +134,11 @@ export function useAdminData(): AdminData {
     mettreAJourHolder,
     mettreAJourCarte,
     ajouterHolder,
+    ajouterOrganisation,
+    mettreAJourOrganisation,
+    supprimerOrganisation,
+    ajouterCommande,
+    mettreAJourCommande,
+    supprimerCommande,
   }
 }

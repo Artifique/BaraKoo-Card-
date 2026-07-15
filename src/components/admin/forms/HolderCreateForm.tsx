@@ -6,15 +6,16 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { CardHolder } from "@/lib/types"
+import { CardHolder, Organization } from "@/lib/types"
 
 interface HolderCreateFormProps {
   onClose: () => void
   onSubmit: (newHolder: Partial<CardHolder>) => Promise<void>
   initialId: string
+  organizations: Organization[]
 }
 
-export function HolderCreateForm({ onClose, onSubmit, initialId }: HolderCreateFormProps) {
+export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }: HolderCreateFormProps) {
   const [formData, setFormData] = useState<Partial<CardHolder>>({
     id: initialId,
     name: "",
@@ -33,7 +34,7 @@ export function HolderCreateForm({ onClose, onSubmit, initialId }: HolderCreateF
     instagram: "",
     twitter: "",
     website: "",
-    organizationId: "org-1" // Valeur par défaut de l'organisation démo
+    organizationId: organizations[0]?.id || "" // Lier à la première organisation par défaut
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,6 +152,22 @@ export function HolderCreateForm({ onClose, onSubmit, initialId }: HolderCreateF
                 >
                   <option className="bg-[#081d38] text-white" value="available">Disponible</option>
                   <option className="bg-[#081d38] text-white" value="unavailable">Non Disponible</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5 col-span-2">
+                <label className="text-xs text-muted-foreground font-semibold">Organisation / Entreprise</label>
+                <select
+                  value={formData.organizationId || ""}
+                  onChange={e => setFormData(prev => ({ ...prev, organizationId: e.target.value }))}
+                  className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-orange"
+                >
+                  <option className="bg-[#081d38] text-white" value="">— Aucune —</option>
+                  {organizations.map(org => (
+                    <option key={org.id} className="bg-[#081d38] text-white" value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

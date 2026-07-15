@@ -12,7 +12,7 @@ import { OrgsTab } from "./tabs/OrgsTab"
 import { OrdersTab } from "./tabs/OrdersTab"
 import { SettingsTab } from "./tabs/SettingsTab"
 import { useAdminData } from "@/hooks/useAdminData"
-import { CardHolder, Card as CardType } from "@/lib/types"
+import { CardHolder, Card as CardType, Organization, Order } from "@/lib/types"
 import { useNotification } from "@/providers/NotificationProvider"
 
 export function AdminLayout() {
@@ -29,7 +29,15 @@ export function AdminLayout() {
     loading,
     mettreAJourHolder,
     mettreAJourCarte,
-    ajouterHolder
+    ajouterHolder,
+    // CRUD Organisations
+    ajouterOrganisation,
+    mettreAJourOrganisation,
+    supprimerOrganisation,
+    // CRUD Commandes
+    ajouterCommande,
+    mettreAJourCommande,
+    supprimerCommande
   } = useAdminData()
 
   // Actions de modification en direct
@@ -162,6 +170,107 @@ export function AdminLayout() {
     }
   }
 
+  // ─── ACTIONS ORGANISATIONS ───
+  const handleAddOrg = (org: any) => {
+    ajouterOrganisation(org)
+    showToast(`Organisation "${org.name}" créée avec succès.`, "success")
+  }
+
+  const handleEditOrg = async (id: string, updates: Partial<Organization>) => {
+    const originalOrg = organizations.find(o => o.id === id)
+    mettreAJourOrganisation(id, updates)
+
+    try {
+      const res = await fetch("/api/organizations", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates })
+      })
+      if (!res.ok) {
+        if (originalOrg) mettreAJourOrganisation(id, originalOrg)
+        showDialog("Erreur", "Impossible de modifier l'organisation.", "error")
+      } else {
+        showToast("Organisation mise à jour avec succès.", "success")
+      }
+    } catch (erreur) {
+      console.error(erreur)
+      if (originalOrg) mettreAJourOrganisation(id, originalOrg)
+      showDialog("Erreur réseau", "Impossible de contacter le serveur.", "error")
+    }
+  }
+
+  const handleDeleteOrg = async (id: string) => {
+    const org = organizations.find(o => o.id === id)
+    if (!org) return
+
+    const confirmation = window.confirm(`Voulez-vous vraiment supprimer définitivement "${org.name}" ? Cette action est irréversible.`)
+    if (!confirmation) return
+
+    try {
+      const res = await fetch(`/api/organizations?id=${id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        showDialog("Impossible de supprimer", data.error || "Une erreur est survenue.", "error")
+      } else {
+        supprimerOrganisation(id)
+        showToast("Organisation supprimée avec succès.", "success")
+      }
+    } catch (erreur) {
+      console.error(erreur)
+      showDialog("Erreur réseau", "Impossible de contacter le serveur.", "error")
+    }
+  }
+
+  // ─── ACTIONS COMMANDES ───
+  const handleAddOrder = (order: any) => {
+    ajouterCommande(order)
+    showToast("Commande enregistrée avec succès.", "success")
+  }
+
+  const handleUpdateOrderStatus = async (
+    id: string,
+    updates: { paymentStatus?: Order["paymentStatus"]; status?: Order["status"] }
+  ) => {
+    const originalOrder = orders.find(o => o.id === id)
+    mettreAJourCommande(id, updates)
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates })
+      })
+      if (!res.ok) {
+        if (originalOrder) mettreAJourCommande(id, originalOrder)
+        showDialog("Erreur", "Impossible de modifier les statuts de la commande.", "error")
+      } else {
+        showToast("Statuts mis à jour avec succès.", "success")
+      }
+    } catch (erreur) {
+      console.error(erreur)
+      if (originalOrder) mettreAJourCommande(id, originalOrder)
+      showDialog("Erreur réseau", "Impossible de contacter le serveur.", "error")
+    }
+  }
+
+  const handleDeleteOrder = async (id: string) => {
+    const confirmation = window.confirm("Voulez-vous vraiment supprimer définitivement cette commande ?")
+    if (!confirmation) return
+
+    try {
+      const res = await fetch(`/api/orders?id=${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        showDialog("Erreur", "Impossible de supprimer la commande.", "error")
+      } else {
+        supprimerCommande(id)
+        showToast("Commande supprimée avec succès.", "success")
+      }
+    } catch (erreur) {
+      console.error(erreur)
+      showDialog("Erreur réseau", "Impossible de contacter le serveur.", "error")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
       
@@ -192,6 +301,7 @@ export function AdminLayout() {
                 holders={holders}
                 cards={cards}
                 loading={loading}
+                organizations={organizations}
                 onToggleAvailability={handleToggleAvailability}
                 onCreateHolder={handleCreateHolder}
                 onEditHolder={handleEditHolder}
@@ -207,11 +317,23 @@ export function AdminLayout() {
             )}
             
             {activeTab === "orgs" && (
-              <OrgsTab holders={holders} organizations={organizations} />
+              <OrgsTab
+                holders={holders}
+                organizations={organizations}
+                onAddOrg={handleAddOrg}
+                onEditOrg={handleEditOrg}
+                onDeleteOrg={handleDeleteOrg}
+              />
             )}
             
             {activeTab === "orders" && (
-              <OrdersTab orders={orders} />
+              <OrdersTab
+                orders={orders}
+                organizations={organizations}
+                onAddOrder={handleAddOrder}
+                onUpdateOrderStatus={handleUpdateOrderStatus}
+                onDeleteOrder={handleDeleteOrder}
+              />
             )}
 
             {activeTab === "settings" && (
@@ -223,3 +345,4 @@ export function AdminLayout() {
     </div>
   )
 }
+

@@ -141,6 +141,7 @@ model Order {
   typeOffre        TypeOffre
   statutPaiement   StatutPaiement @default(EN_ATTENTE)
   statutLivraison  StatutLivraison @default(EN_ATTENTE)
+  notes            String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 

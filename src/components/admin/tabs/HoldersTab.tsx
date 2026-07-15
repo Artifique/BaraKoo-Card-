@@ -10,12 +10,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { HolderCreateForm } from "../forms/HolderCreateForm"
 import { HolderEditForm } from "../forms/HolderEditForm"
-import { CardHolder, Card as CardType } from "@/lib/types"
+import { CardHolder, Card as CardType, Organization } from "@/lib/types"
 
 interface HoldersTabProps {
   holders: CardHolder[]
   cards: CardType[]
   loading: boolean
+  organizations: Organization[]
   onToggleAvailability: (holder: CardHolder) => Promise<void>
   onCreateHolder: (newHolder: Partial<CardHolder>) => Promise<void>
   onEditHolder: (updatedHolder: CardHolder) => Promise<void>
@@ -25,6 +26,7 @@ export function HoldersTab({
   holders,
   cards,
   loading,
+  organizations,
   onToggleAvailability,
   onCreateHolder,
   onEditHolder
@@ -84,6 +86,7 @@ export function HoldersTab({
           initialId={`BJ-2026-${String(Math.floor(Math.random() * 1000) + 200).padStart(6, "0")}`}
           onClose={() => setIsAddingHolder(false)}
           onSubmit={handleCreateSubmit}
+          organizations={organizations}
         />
       )}
 
@@ -93,6 +96,7 @@ export function HoldersTab({
           holder={editingHolder}
           onClose={() => setEditingHolder(null)}
           onSubmit={handleEditSubmit}
+          organizations={organizations}
         />
       )}
 
