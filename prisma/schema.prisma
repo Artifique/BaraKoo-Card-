@@ -1,0 +1,244 @@
+// Schéma de données Prisma pour Baarako Card
+// Base de données : PostgreSQL (Supabase)
+// Voir la documentation : https://www.prisma.io/docs/concepts/components/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // URL de connexion groupée (via Supabase Pooler / PgBouncer)
+  url       = env("DATABASE_URL")
+  // URL directe pour les migrations Prisma (sans pooler)
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODÈLES PRINCIPAUX
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Équipe interne : seuls comptes avec accès au tableau de bord
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  nom          String
+  passwordHash String
+  /// Niveau d'accès : SUPER_ADMIN ou AGENT
+  role         RoleAdmin @default(AGENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  /// Actions effectuées par cet administrateur (journal d'activité)
+  journaux     ActivityLog[]
+
+  @@map("admins")
+}
+
+/// Organisation associée à un ou plusieurs titulaires de cartes
+model Organization {
+  id          String       @id @default(cuid())
+  nom         String
+  logoUrl     String?
+  secteur     String?
+  description String?
+  adresse     String?
+  siteWeb     String?
+  telephone   String?
+  email       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  /// Titulaires rattachés à cette organisation
+  titulaires  CardHolder[]
+
+  @@map("organizations")
+}
+
+/// Fiche d'un titulaire de carte de contact professionnelle
+model CardHolder {
+  id            String       @id // Format : BJ-2024-000001
+  nom           String
+  fonction      String
+  bio           String?
+  avatarUrl     String?
+  /// Statut de la fiche : actif ou suspendu
+  statut        StatutFiche  @default(ACTIF)
+  /// Disponibilité affichée sur le profil public
+  disponible    Boolean      @default(true)
+
+  // Coordonnées de contact
+  telephone     String?
+  whatsapp      String?
+  emailContact  String?
+  adresse       String?
+  lienMaps      String?
+
+  // Réseaux sociaux personnels
+  linkedin      String?
+  facebook      String?
+  instagram     String?
+  twitter       String?
+  siteWeb       String?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  /// Organisation d'appartenance (optionnel)
+  organizationId String?
+  organisation   Organization? @relation(fields: [organizationId], references: [id])
+
+  /// Carte(s) associée(s) à ce titulaire
+  cartes         Card[]
+
+  @@map("card_holders")
+}
+
+/// Carte de contact physique (NFC / QR Code) émise pour un titulaire
+model Card {
+  id        String      @id @default(cuid())
+  /// Type de carte : QR seul, NFC seul, ou les deux
+  type      TypeCarte   @default(LES_DEUX)
+  /// Statut du cycle de vie de la carte
+  statut    StatutCarte @default(BROUILLON)
+  /// Slug unique pour l'URL publique : baarako.card/[slug]
+  slug      String      @unique
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  /// Titulaire propriétaire de la carte
+  holderId  String
+  titulaire CardHolder  @relation(fields: [holderId], references: [id])
+
+  /// Historique des scans effectués sur cette carte
+  scans     CardScan[]
+  /// Enregistrements de contact réussis
+  saves     ContactSave[]
+
+  @@map("cards")
+}
+
+/// Client commanditaire (particulier ou entreprise) — sans connexion
+model Client {
+  id        String   @id @default(cuid())
+  nom       String
+  email     String?
+  telephone String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Commandes passées par ce client
+  commandes Order[]
+
+  @@map("clients")
+}
+
+/// Commande de cartes physiques
+model Order {
+  id               String         @id @default(cuid())
+  /// Nombre de cartes commandées
+  quantite         Int            @default(1)
+  typeOffre        TypeOffre
+  statutPaiement   StatutPaiement @default(EN_ATTENTE)
+  statutLivraison  StatutLivraison @default(EN_ATTENTE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  /// Client ayant passé la commande
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id])
+
+  @@map("orders")
+}
+
+/// Historique d'un scan de carte (QR Code ou NFC)
+model CardScan {
+  id        String       @id @default(cuid())
+  methode   MethodeScan
+  /// Appareil du visiteur (ex : "iPhone 14", "Android")
+  appareil  String?
+  createdAt DateTime     @default(now())
+
+  cardId    String
+  carte     Card         @relation(fields: [cardId], references: [id])
+
+  @@map("card_scans")
+}
+
+/// Enregistrement de contact réussi par un visiteur
+model ContactSave {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  cardId    String
+  carte     Card     @relation(fields: [cardId], references: [id])
+
+  @@map("contact_saves")
+}
+
+/// Journal des actions sensibles effectuées par les administrateurs
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String   // Ex : "CREATION_TITULAIRE", "DESACTIVATION_CARTE"
+  description String?
+  createdAt   DateTime @default(now())
+
+  adminId     String
+  admin       Admin    @relation(fields: [adminId], references: [id])
+
+  @@map("activity_logs")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ÉNUMÉRATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RoleAdmin {
+  SUPER_ADMIN
+  AGENT
+}
+
+enum StatutFiche {
+  ACTIF
+  SUSPENDU
+}
+
+enum TypeCarte {
+  QR_SEUL
+  NFC_SEUL
+  LES_DEUX
+}
+
+enum StatutCarte {
+  BROUILLON
+  PRET_A_PRODUIRE
+  EN_PRODUCTION
+  ENCODEE
+  EXPEDIEE
+  ACTIVE
+  INACTIVE
+}
+
+enum TypeOffre {
+  CARTE_SIMPLE_QR
+  CARTE_NFC_QR
+  PACK_ENTREPRISE
+}
+
+enum StatutPaiement {
+  EN_ATTENTE
+  PAYE
+  REMBOURSE
+}
+
+enum StatutLivraison {
+  EN_ATTENTE
+  EN_COURS
+  EXPEDIEE
+  LIVREE
+}
+
+enum MethodeScan {
+  QR_CODE
+  NFC
+}

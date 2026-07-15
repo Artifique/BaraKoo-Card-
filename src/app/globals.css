@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   Variables CSS globales et Thème par Défaut (Mode Sombre Navy)
+   -------------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #041124;
+  --foreground: #f8fafc;
+  
+  --card: #081d38;
+  --card-foreground: #f8fafc;
+  
+  --popover: #081d38;
+  --popover-foreground: #f8fafc;
+  
+  --primary: #f26f21;
+  --primary-foreground: #ffffff;
+  
+  --secondary: #0d274c;
+  --secondary-foreground: #f8fafc;
+  
+  --muted: #14325c;
+  --muted-foreground: #94a3b8;
+  
+  --accent: #14325c;
+  --accent-foreground: #f8fafc;
+  
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  --border: #183762;
+  --input: #183762;
+  --ring: #f26f21;
+
+  --radius: 1rem;
+
+  /* Couleurs de marque Baarako */
+  --brand-navy: #041124;
+  --brand-navy-light: #081d38;
+  --brand-orange: #f26f21;
+  --brand-green: #00a859;
+  --brand-green-muted: #052e16;
+  --brand-red: #dc2626;
+  --brand-red-muted: #450a0a;
+
+  /* Opacité et flou pour le glassmorphic */
+  --glass-bg: rgba(8, 29, 56, 0.65);
+  --glass-border: rgba(24, 55, 98, 0.4);
 }
 
+/* --------------------------------------------------------------------------
+   Surcharge pour le Mode Clair (Classe .light appliquée sur <html>)
+   -------------------------------------------------------------------------- */
+.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  
+  --border: #cbd5e1;
+  --input: #cbd5e1;
+  
+  /* Ajustement de l'effet glassmorphic pour fond clair */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(148, 163, 184, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Configuration des tokens utilitaires Tailwind v4
+   -------------------------------------------------------------------------- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Couleurs de marque */
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-light: var(--brand-navy-light);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-muted: var(--brand-green-muted);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-muted: var(--brand-red-muted);
+  
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Utilitaires de design avancés (Glassmorphism & Lueur)
+   -------------------------------------------------------------------------- */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+.glow-orange {
+  box-shadow: 0 0 15px rgba(242, 111, 33, 0.4);
+}
+
+.glow-green {
+  box-shadow: 0 0 15px rgba(0, 168, 89, 0.4);
+}
+
+.glow-white {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }

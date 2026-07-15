@@ -1,8 +1,10 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ─────────────────────────────────────────────────────────
+# .gitignore — Baarako Card (Next.js + Prisma + Supabase)
+# ─────────────────────────────────────────────────────────
 
-# dependencies
-/node_modules
-/.pnp
+# ── Dépendances Node.js ──────────────────────────────────
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,32 +12,60 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
+# ── Next.js ──────────────────────────────────────────────
+.next/
+out/
 /build
 
-# misc
-.DS_Store
-*.pem
+# ── Prisma ───────────────────────────────────────────────
+# Ne pas committer les migrations générées automatiquement
+# (garder prisma/migrations/ si vous voulez tracer l'historique)
+prisma/generated/
 
-# debug
+# ── Variables d'environnement (DONNÉES SENSIBLES) ────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Garder .env.example (template non-secret) : ne pas l'ignorer
+
+# ── Tests & Coverage ─────────────────────────────────────
+/coverage
+*.lcov
+
+# ── Système d'exploitation ───────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
+# ── TypeScript ───────────────────────────────────────────
 *.tsbuildinfo
 next-env.d.ts
+
+# ── Éditeurs & IDE ───────────────────────────────────────
+.vscode/settings.json
+.vscode/*.code-workspace
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Vercel / Déploiement ─────────────────────────────────
+.vercel
+
+# ── Divers ───────────────────────────────────────────────
+*.pem
+.cache/
+dist/
