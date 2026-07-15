@@ -87,15 +87,10 @@ npm install
 ```
 
 ### 3. Configurer l'environnement
-Créez un fichier `.env` à la racine du projet en vous inspirant du modèle suivant :
+Créez un fichier `.env` à la racine du projet en définissant les variables d'environnement nécessaires pour votre base de données et les sessions. Par exemple :
 ```env
-# Connexion PostgreSQL (Pooler Supabase) pour l'application
-DATABASE_URL="postgresql://postgres.uexrmasfpxqdkethvoqv:[VOTRE-MOT-DE-PASSE]@aws-0-eu-north-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-
-# Connexion PostgreSQL Directe pour les migrations Prisma (port 5432)
-DIRECT_URL="postgresql://postgres.uexrmasfpxqdkethvoqv:[VOTRE-MOT-DE-PASSE]@aws-0-eu-north-1.pooler.supabase.com:5432/postgres"
-
-# Clé secrète de session cryptographique (min. 32 caractères recommandés)
+DATABASE_URL="postgresql://utilisateur:motdepasse@hote:port/base_de_donnees"
+DIRECT_URL="postgresql://utilisateur:motdepasse@hote:port/base_de_donnees"
 SESSION_SECRET="votre_super_cle_secrete_session_admin_2026"
 ```
 
