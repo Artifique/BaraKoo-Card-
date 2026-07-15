@@ -26,6 +26,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Baarako Card - Votre carte de visite digitale",
   description: "La carte de visite intelligente avec technologie NFC et QR Code pour l'Afrique.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Baarako Card",
+  },
 }
 
 // --------------------------------------------------------------------------
@@ -49,6 +55,26 @@ export default function RootLayout({
             {children}
           </NotificationProvider>
         </ThemeProvider>
+
+        {/* Enregistrement du Service Worker PWA */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(reg) {
+                      console.log('PWA ServiceWorker enregistré avec succès. Scope:', reg.scope);
+                    },
+                    function(err) {
+                      console.error('Erreur d\\'enregistrement du ServiceWorker PWA:', err);
+                    }
+                  );
+                });
+              }
+            `
+          }}
+        />
       </body>
     </html>
   )

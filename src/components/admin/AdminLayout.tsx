@@ -3,6 +3,8 @@
 
 import * as React from "react"
 import { useState } from "react"
+import Image from "next/image"
+import { Menu } from "lucide-react"
 import { AdminSidebar, ActiveTab } from "./AdminSidebar"
 import { AdminTopbar } from "./AdminTopbar"
 import { DashboardTab } from "./tabs/DashboardTab"
@@ -17,6 +19,7 @@ import { useNotification } from "@/providers/NotificationProvider"
 
 export function AdminLayout() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard")
+  const [sidebarOuverte, setSidebarOuverte] = useState(false)
   const { showDialog, showToast } = useNotification()
   
   // Utilisation du hook centralisé pour charger les données
@@ -273,13 +276,65 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row relative">
       
-      {/* Barre latérale de navigation fixe */}
-      <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Bandeau d'en-tête collant uniquement pour mobile */}
+      <div className="flex md:hidden items-center justify-between px-5 py-3 bg-card border-b border-border/20 sticky top-0 z-40 shadow-md">
+        <div className="flex items-center space-x-2.5">
+          <div className="w-9 h-9 rounded-full overflow-hidden relative border border-border/40 bg-black/10 shrink-0">
+            <Image
+              src="/images/BarakoKeneya.jpeg"
+              alt="Logo Baarako Card"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <span className="text-sm font-black text-white tracking-wider block leading-none">
+              BAARAKO CARD
+            </span>
+            <span className="text-[8px] text-brand-green font-bold tracking-widest mt-0.5 block">
+              MOBILE ADMIN
+            </span>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => setSidebarOuverte(true)}
+          className="p-2 rounded-xl bg-secondary/80 border border-border/40 text-muted-foreground hover:text-foreground cursor-pointer flex items-center justify-center"
+          title="Ouvrir le menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </div>
 
-      {/* Zone de contenu principale défilante de façon indépendante */}
-      <main className="flex-1 p-6 md:p-8 flex flex-col h-screen overflow-y-auto">
+      {/* Tiroir de navigation mobile (Overlay + Sidebar coulissante) */}
+      {sidebarOuverte && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* Fond d'ombrage semi-transparent cliquable */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity duration-300"
+            onClick={() => setSidebarOuverte(false)}
+          />
+          
+          {/* Contenu de la sidebar mobile (tiroir coulissant de gauche) */}
+          <div className="relative flex-1 flex flex-col max-w-[270px] w-full bg-card h-full z-50">
+            <AdminSidebar
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              onClose={() => setSidebarOuverte(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Barre latérale de navigation fixe pour les écrans larges */}
+      <div className="hidden md:block shrink-0">
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+
+      {/* Zone de contenu principale défilante */}
+      <main className="flex-1 p-5 md:p-8 flex flex-col min-h-[calc(100vh-60px)] md:h-screen md:overflow-y-auto">
         
         {/* Barre supérieure unifiée (Topbar) avec le ThemeToggle */}
         <AdminTopbar activeTab={activeTab} />

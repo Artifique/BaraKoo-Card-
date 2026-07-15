@@ -4,7 +4,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { BarChart3, Users, CreditCard, Building2, ShoppingBag, Settings, LogOut } from "lucide-react"
+import { BarChart3, Users, CreditCard, Building2, ShoppingBag, Settings, LogOut, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // --------------------------------------------------------------------------
@@ -19,6 +19,8 @@ interface AdminSidebarProps {
   activeTab: ActiveTab
   /** Callback pour changer d'onglet */
   onTabChange: (tab: ActiveTab) => void
+  /** Callback facultatif pour fermer la sidebar sur mobile */
+  onClose?: () => void
 }
 
 // --------------------------------------------------------------------------
@@ -38,7 +40,7 @@ const liens = [
 // Composant
 // --------------------------------------------------------------------------
 
-export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
+export function AdminSidebar({ activeTab, onTabChange, onClose }: AdminSidebarProps) {
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -53,12 +55,28 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
     }
   }
 
+  const handleTabClick = (tabId: ActiveTab) => {
+    onTabChange(tabId)
+    if (onClose) onClose()
+  }
+
   return (
     <aside className="
-      w-full md:w-64 md:h-screen md:sticky md:top-0 shrink-0 p-5
+      w-full md:w-64 h-full md:h-screen md:sticky md:top-0 shrink-0 p-5
       bg-card border-r border-border/50
-      flex flex-col justify-between overflow-y-auto
+      flex flex-col justify-between overflow-y-auto relative
     ">
+      {/* Bouton de fermeture mobile */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl bg-secondary/80 border border-border/40 text-muted-foreground hover:text-foreground md:hidden cursor-pointer"
+          title="Fermer"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+
       {/* ─── Partie haute : logo + navigation ─── */}
       <div className="flex flex-col space-y-5">
 
@@ -80,7 +98,7 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
           {liens.map(({ id, label, icone: Icone }) => (
             <button
               key={id}
-              onClick={() => onTabChange(id)}
+              onClick={() => handleTabClick(id)}
               className={cn(
                 "flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-medium",
                 "transition-all duration-200 cursor-pointer w-full text-left",

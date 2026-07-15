@@ -1,0 +1,24 @@
+{
+  "name": "Baarako Card",
+  "short_name": "BaarakoCard",
+  "description": "Cartes de contact professionnelles digitales (NFC & QR Code)",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#041124",
+  "theme_color": "#f26f21",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/BarakoKeneya.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/BarakoKeneya.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
