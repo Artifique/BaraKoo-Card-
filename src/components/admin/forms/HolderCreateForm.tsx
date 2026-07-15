@@ -34,8 +34,36 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
     instagram: "",
     twitter: "",
     website: "",
-    organizationId: organizations[0]?.id || "" // Lier à la première organisation par défaut
+    organizationId: organizations[0]?.id || "", // Lier à la première organisation par défaut
+    serviceId: ""
   })
+
+  const [uploading, setUploading] = useState(false)
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const data = new FormData()
+      data.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      })
+
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || "Erreur de téléversement")
+
+      setFormData(prev => ({ ...prev, avatarUrl: result.url }))
+    } catch (erreur: any) {
+      alert("Erreur de téléversement : " + erreur.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,6 +89,41 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Section d'upload de photo de profil */}
+          <div className="flex items-center space-x-4 p-3 bg-secondary/35 border border-border/20 rounded-2xl">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border border-border/40 shrink-0 bg-secondary flex items-center justify-center">
+              {formData.avatarUrl ? (
+                <img src={formData.avatarUrl} alt="Aperçu avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground">Photo</span>
+              )}
+            </div>
+            <div className="flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUploadImage}
+                disabled={uploading}
+                className="hidden"
+                id="avatar-create-input"
+              />
+              <label
+                htmlFor="avatar-create-input"
+                className={`
+                  inline-block px-4 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all duration-300
+                  ${uploading 
+                    ? "bg-secondary text-muted-foreground border-border/30" 
+                    : "bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border-brand-orange/20"
+                  }
+                `}
+              >
+                {uploading ? "Chargement..." : "Téléverser une photo de profil"}
+              </label>
+              <p className="text-[9px] text-muted-foreground mt-1">Format recommandé : Carré, PNG ou JPG</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground font-semibold">Identifiant Unique</label>
@@ -159,7 +222,7 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
                 <label className="text-xs text-muted-foreground font-semibold">Organisation / Entreprise</label>
                 <select
                   value={formData.organizationId || ""}
-                  onChange={e => setFormData(prev => ({ ...prev, organizationId: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, organizationId: e.target.value, serviceId: "" }))}
                   className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-orange"
                 >
                   <option className="bg-[#081d38] text-white" value="">— Aucune —</option>
@@ -170,6 +233,24 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
                   ))}
                 </select>
               </div>
+
+              {formData.organizationId && (
+                <div className="space-y-1.5 col-span-2">
+                  <label className="text-xs text-muted-foreground font-semibold">Service / Département</label>
+                  <select
+                    value={formData.serviceId || ""}
+                    onChange={e => setFormData(prev => ({ ...prev, serviceId: e.target.value }))}
+                    className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-orange"
+                  >
+                    <option className="bg-[#081d38] text-white" value="">— Aucun —</option>
+                    {(organizations.find(o => o.id === formData.organizationId)?.services || []).map((srv: any) => (
+                      <option key={srv.id} className="bg-[#081d38] text-white" value={srv.id}>
+                        {srv.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
@@ -207,7 +288,7 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
           </div>
 
           <div className="flex justify-end space-x-2 pt-2 border-t border-border/10">
-            <Button variant="ghost" size="sm" type="button" onClick={onClose}>
+            <Button variant="destructive" size="sm" type="button" onClick={onClose}>
               Annuler
             </Button>
             <Button variant="success" size="sm" type="submit">

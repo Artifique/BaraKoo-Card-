@@ -37,3 +37,10 @@ export {
   updateOrder,
   deleteOrder
 } from "./OrderService"
+
+export {
+  getServicesByOrganization,
+  createService,
+  updateService,
+  deleteService
+} from "./ServiceService"

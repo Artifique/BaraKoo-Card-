@@ -7,3 +7,4 @@ export type { CardHolder, CreateCardHolderDto, UpdateCardHolderDto } from "./Car
 export type { Card, CardStats, CreateCardDto, UpdateCardDto } from "./Card"
 export type { Organization, CreateOrganizationDto, UpdateOrganizationDto } from "./Organization"
 export type { Order, CreateOrderDto, UpdateOrderDto } from "./Order"
+export type { Service, CreateServiceDto, UpdateServiceDto } from "./Service"

@@ -12,6 +12,7 @@ export interface Organization {
   website: string     // Site web officiel
   phone: string       // Téléphone de contact
   email: string       // Email de contact
+  services?: any[]    // Liste optionnelle des services de l'organisation
 }
 
 /**

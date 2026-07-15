@@ -11,7 +11,10 @@ import type { CardHolder, CreateCardHolderDto, UpdateCardHolderDto } from "@/mod
  */
 export async function getAllHolders(): Promise<CardHolder[]> {
   const liste = await prisma.cardHolder.findMany({
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
+    include: {
+      service: true
+    }
   })
   return liste.map(mapperPrismaVersHolder)
 }
@@ -22,7 +25,10 @@ export async function getAllHolders(): Promise<CardHolder[]> {
  */
 export async function getHolderById(id: string): Promise<CardHolder | null> {
   const titulaire = await prisma.cardHolder.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      service: true
+    }
   })
   if (!titulaire) return null
   return mapperPrismaVersHolder(titulaire)
@@ -34,7 +40,7 @@ export async function getHolderById(id: string): Promise<CardHolder | null> {
 export async function createHolder(data: CreateCardHolderDto): Promise<CardHolder> {
   const { id, name, title, bio, avatarUrl, status, availability,
     phone, whatsapp, email, address, googleMapsUrl,
-    linkedin, facebook, instagram, twitter, website, organizationId } = data
+    linkedin, facebook, instagram, twitter, website, organizationId, serviceId } = data
 
   const created = await prisma.cardHolder.create({
     data: {
@@ -55,7 +61,11 @@ export async function createHolder(data: CreateCardHolderDto): Promise<CardHolde
       instagram: instagram ?? "",
       twitter: twitter ?? "",
       siteWeb: website ?? "",
-      organizationId: organizationId ?? null
+      organizationId: organizationId ?? null,
+      serviceId: serviceId ?? null
+    },
+    include: {
+      service: true
     }
   })
   return mapperPrismaVersHolder(created)
@@ -85,9 +95,16 @@ export async function updateHolder(id: string, data: UpdateCardHolderDto): Promi
   if (data.twitter !== undefined)      dataUpdate.twitter = data.twitter
   if (data.website !== undefined)      dataUpdate.siteWeb = data.website
   if (data.organizationId !== undefined) dataUpdate.organizationId = data.organizationId
+  if (data.serviceId !== undefined)    dataUpdate.serviceId = data.serviceId
 
   try {
-    const updated = await prisma.cardHolder.update({ where: { id }, data: dataUpdate })
+    const updated = await prisma.cardHolder.update({
+      where: { id },
+      data: dataUpdate,
+      include: {
+        service: true
+      }
+    })
     return mapperPrismaVersHolder(updated)
   } catch {
     return null

@@ -40,7 +40,7 @@ export default prisma
  * Convertit un enregistrement CardHolder de la base de données (Prisma)
  * vers l'interface CardHolder attendue par le frontend Next.js.
  */
-export function mapperPrismaVersHolder(p: PrismaHolder): CardHolder {
+export function mapperPrismaVersHolder(p: any): CardHolder {
   return {
     id: p.id,
     name: p.nom,
@@ -60,6 +60,12 @@ export function mapperPrismaVersHolder(p: PrismaHolder): CardHolder {
     twitter: p.twitter ?? "",
     website: p.siteWeb ?? "",
     organizationId: p.organizationId,
+    serviceId: p.serviceId,
+    service: p.service ? {
+      id: p.service.id,
+      nom: p.service.nom,
+      description: p.service.description
+    } : null
   }
 }
 

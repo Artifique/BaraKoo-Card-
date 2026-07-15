@@ -41,6 +41,10 @@ export async function getAllOrganizations(): Promise<Organization[]> {
           avatarUrl: true,
           disponible: true
         }
+      },
+      // Inclure les services
+      services: {
+        orderBy: { nom: "asc" }
       }
     }
   })
@@ -52,6 +56,12 @@ export async function getAllOrganizations(): Promise<Organization[]> {
       nom: t.nom,
       fonction: t.fonction,
       avatarUrl: t.avatarUrl ?? ""
+    })) ?? [],
+    // Champ enrichi : liste des services
+    services: o.services?.map((s: any) => ({
+      id: s.id,
+      nom: s.nom,
+      description: s.description ?? ""
     })) ?? []
   })) as any
 }

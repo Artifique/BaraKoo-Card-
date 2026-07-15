@@ -237,7 +237,7 @@ export function OrderCreateForm({ organizations, onSuccess, onCancel }: OrderCre
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 rounded-2xl text-xs font-semibold border border-border/30 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all cursor-pointer"
+          className="px-4 py-2.5 rounded-2xl text-xs font-semibold border border-red-500/40 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all cursor-pointer"
         >
           Annuler
         </button>

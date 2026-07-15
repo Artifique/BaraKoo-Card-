@@ -27,8 +27,35 @@ export function OrgEditForm({ organisation, onSuccess, onCancel }: OrgEditFormPr
     logoUrl: organisation.logoUrl,
   })
 
+  const [uploading, setUploading] = useState(false)
+
   const update = (champ: string, valeur: string) =>
     setForm(prev => ({ ...prev, [champ]: valeur }))
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const data = new FormData()
+      data.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      })
+
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || "Erreur de téléversement")
+
+      update("logoUrl", result.url)
+    } catch (erreur: any) {
+      alert("Erreur d'upload : " + erreur.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,16 +128,48 @@ export function OrgEditForm({ organisation, onSuccess, onCancel }: OrgEditFormPr
           />
         </div>
 
-        {/* Logo URL */}
+        {/* Logo (Upload / Fichier) */}
         <div>
-          <label className={labelStyle}>URL du Logo</label>
-          <input
-            type="url"
-            placeholder="https://..."
-            value={form.logoUrl}
-            onChange={e => update("logoUrl", e.target.value)}
-            className={champStyle}
-          />
+          <label className={labelStyle}>Logo de l'entreprise</label>
+          <div className="flex items-center space-x-3">
+            {form.logoUrl ? (
+              <div className="w-11 h-11 rounded-xl bg-muted border border-border/40 overflow-hidden relative shrink-0">
+                <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center border border-border/40 text-muted-foreground shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+            )}
+            
+            <div className="flex-1 relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                disabled={uploading}
+                className="hidden"
+                id="logo-edit-input"
+              />
+              <label
+                htmlFor="logo-edit-input"
+                className={`
+                  w-full px-4 py-2.5 rounded-2xl border text-xs font-semibold text-center block cursor-pointer transition-all duration-300
+                  ${uploading 
+                    ? "bg-secondary text-muted-foreground border-border/30" 
+                    : "bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border-brand-orange/20"
+                  }
+                `}
+              >
+                {uploading ? "Téléversement..." : "Choisir un logo (PNG/JPG)"}
+              </label>
+            </div>
+          </div>
+          {form.logoUrl && (
+            <p className="text-[10px] text-muted-foreground mt-1 truncate pl-1" title={form.logoUrl}>
+              URL : {form.logoUrl}
+            </p>
+          )}
         </div>
 
         {/* Description */}
@@ -185,7 +244,7 @@ export function OrgEditForm({ organisation, onSuccess, onCancel }: OrgEditFormPr
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 rounded-2xl text-xs font-semibold border border-border/30 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all cursor-pointer"
+          className="px-4 py-2.5 rounded-2xl text-xs font-semibold border border-red-500/40 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all cursor-pointer"
         >
           Annuler
         </button>

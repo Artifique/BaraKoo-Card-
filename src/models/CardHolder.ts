@@ -27,6 +27,14 @@ export interface CardHolder {
 
   // Relation organisation (optionnelle)
   organizationId: string | null
+
+  // Relation service (optionnelle)
+  serviceId?: string | null
+  service?: {
+    id: string
+    nom: string
+    description?: string | null
+  } | null
 }
 
 /**

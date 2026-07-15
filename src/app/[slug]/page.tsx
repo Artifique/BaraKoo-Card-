@@ -48,7 +48,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // 2. Charger les informations détaillées du titulaire de la carte
   const holder = await prisma.cardHolder.findUnique({
     where: { id: card.holderId },
-    include: { organisation: true }
+    include: { organisation: true, service: true }
   })
 
   // Si le profil n'existe pas ou s'il est suspendu, bloquer l'accès
@@ -127,6 +127,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
             {/* Poste / Fonction */}
             <p className="text-brand-green font-medium text-base mt-1.5">{holderMapped.title}</p>
+
+            {/* Service / Département */}
+            {holderMapped.service && (
+              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider mt-2 bg-secondary/80 px-3.5 py-1 rounded-full border border-border/30">
+                Service : {holderMapped.service.nom}
+              </p>
+            )}
 
             {/* Badge Disponibilité & Identifiant */}
             <div className="flex flex-col items-center gap-2 mt-4 w-full">

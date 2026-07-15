@@ -37,7 +37,8 @@ export function AdminLayout() {
     // CRUD Commandes
     ajouterCommande,
     mettreAJourCommande,
-    supprimerCommande
+    supprimerCommande,
+    refetch
   } = useAdminData()
 
   // Actions de modification en direct
@@ -323,6 +324,7 @@ export function AdminLayout() {
                 onAddOrg={handleAddOrg}
                 onEditOrg={handleEditOrg}
                 onDeleteOrg={handleDeleteOrg}
+                onRefreshData={refetch}
               />
             )}
             

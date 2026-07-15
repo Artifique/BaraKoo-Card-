@@ -51,8 +51,28 @@ model Organization {
 
   /// Titulaires rattachés à cette organisation
   titulaires  CardHolder[]
+  /// Départements / services internes de l'organisation
+  services    Service[]
 
   @@map("organizations")
+}
+
+/// Département ou service interne d'une organisation
+model Service {
+  id             String       @id @default(cuid())
+  nom            String
+  description    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  /// Organisation parente
+  organizationId String
+  organisation   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  /// Titulaires appartenant à ce service
+  titulaires     CardHolder[]
+
+  @@map("services")
 }
 
 /// Fiche d'un titulaire de carte de contact professionnelle
@@ -87,6 +107,11 @@ model CardHolder {
   /// Organisation d'appartenance (optionnel)
   organizationId String?
   organisation   Organization? @relation(fields: [organizationId], references: [id])
+
+  /// Service d'appartenance au sein de l'organisation (optionnel)
+  /// Si le service est supprimé, ce champ passe à NULL (le titulaire reste intact)
+  serviceId      String?
+  service        Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
 
   /// Carte(s) associée(s) à ce titulaire
   cartes         Card[]
