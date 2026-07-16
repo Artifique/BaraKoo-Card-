@@ -119,22 +119,24 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
   const activeHolder = selectedCard ? holders.find(h => h.id === selectedCard.holderId) : null
 
   // --------------------------------------------------------------------------
-  // Capture DOM via html2canvas → PDF pixel-perfect (capture exacte du rendu navigateur)
+  // Capture DOM via html-to-image → PDF pixel-perfect (capture exacte du rendu navigateur)
   // --------------------------------------------------------------------------
   const handleExportPDF = async (holder: CardHolder) => {
     if (!cardRef.current) return
     setExporting(true)
     try {
-      const html2canvas = (await import("html2canvas")).default
+      const { toCanvas } = await import("html-to-image")
       const { jsPDF } = await import("jspdf")
 
-      // Capturer le DOM à haute résolution (scale 4 = 4× plus net)
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 4,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#0c2547",
-        logging: false,
+      // Capturer le DOM à haute résolution (pixelRatio 4 = 4x plus net)
+      const canvas = await toCanvas(cardRef.current, {
+        pixelRatio: 4,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+          width: cardRef.current.offsetWidth + "px",
+          height: cardRef.current.offsetHeight + "px"
+        }
       })
 
       // Dimensions exactes carte CR80 en mm
@@ -159,21 +161,23 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
   }
 
   // --------------------------------------------------------------------------
-  // Capture DOM via html2canvas → TIFF haute résolution (300 DPI)
+  // Capture DOM via html-to-image → TIFF haute résolution (300 DPI)
   // --------------------------------------------------------------------------
   const handleExportTIFF = async (holder: CardHolder) => {
     if (!cardRef.current) return
     setExporting(true)
     try {
-      const html2canvas = (await import("html2canvas")).default
+      const { toCanvas } = await import("html-to-image")
 
       // Capturer le DOM à haute résolution
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 4,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#0c2547",
-        logging: false,
+      const canvas = await toCanvas(cardRef.current, {
+        pixelRatio: 4,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+          width: cardRef.current.offsetWidth + "px",
+          height: cardRef.current.offsetHeight + "px"
+        }
       })
 
       saveCanvasAsTIFF(canvas, `${holder.name.replace(/\s+/g, "_")}_${cardFace}.tiff`)
