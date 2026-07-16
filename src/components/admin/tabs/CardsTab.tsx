@@ -20,12 +20,13 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
-import { CardHolder, Card as CardType } from "@/lib/types"
+import { CardHolder, Card as CardType, Organization } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 
 interface CardsTabProps {
   holders: CardHolder[]
   cards: CardType[]
+  organizations: Organization[]
   onToggleCardStatus: (card: CardType) => Promise<void>
 }
 
@@ -102,7 +103,7 @@ function saveCanvasAsTIFF(canvas: HTMLCanvasElement, filename: string) {
   link.click()
 }
 
-export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) {
+export function CardsTab({ holders, cards, organizations, onToggleCardStatus }: CardsTabProps) {
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null)
   const [cardFace, setCardFace] = useState<"recto" | "verso">("recto")
   const [exporting, setExporting] = useState(false)
@@ -117,6 +118,9 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
 
   // Rechercher les données du titulaire lié à la carte sélectionnée
   const activeHolder = selectedCard ? holders.find(h => h.id === selectedCard.holderId) : null
+  const activeHolderOrg = activeHolder && organizations
+    ? organizations.find(org => org.id === activeHolder.organizationId)
+    : null
 
   // --------------------------------------------------------------------------
   // Capture DOM via html-to-image → PDF pixel-perfect (capture exacte du rendu navigateur)
@@ -316,17 +320,24 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
                     />
                   </svg>
 
-                  {/* Contenu zone droite : NFC + QR + Scannez-moi */}
+                  {/* Contenu zone droite : Logo Baarako + QR + Scannez-moi */}
                   <div className="relative z-10 h-full flex flex-col items-center justify-between py-3 px-2">
-                    {/* NFC */}
-                    <div className="flex flex-col items-center gap-0.5 mt-1">
-                      <Wifi className="w-5 h-5 text-white rotate-90" strokeWidth={2.5} />
-                      <span className="text-[9px] font-black tracking-[0.2em] text-white uppercase">NFC</span>
-                      <span className="text-[7px] text-white/70 text-center leading-tight">Approchez votre<br />téléphone</span>
+                    {/* Logo Baarako + Texte d'approche */}
+                    <div className="flex flex-col items-center gap-0.5 mt-1 text-center">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-black/35 border border-white/10 shrink-0 flex items-center justify-center relative">
+                        <Image
+                          src="/images/BarakoKeneyanoir.png"
+                          alt="Logo Baarako"
+                          fill
+                          className="object-cover scale-110"
+                        />
+                      </div>
+                      <span className="text-[9px] font-black tracking-wide text-white mt-1">Baarako</span>
+                      <span className="text-[6.5px] text-white/80 leading-tight">Approchez votre<br />téléphone</span>
                     </div>
 
                     {/* QR Code */}
-                    <div className="bg-white p-1 rounded-lg shadow-xl w-14 h-14 flex items-center justify-center">
+                    <div className="bg-white p-1 rounded-xl shadow-xl w-14 h-14 flex items-center justify-center">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${typeof window !== "undefined" ? window.location.origin : ""}/${selectedCard.slug}`)}`}
                         alt="QR Code"
@@ -336,40 +347,59 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
                     </div>
 
                     {/* Bouton Scannez-moi */}
-                    <div className="flex items-center gap-1 bg-[#F97316] rounded-lg px-2 py-1 shadow-lg">
-                      <Smartphone className="w-2.5 h-2.5 text-white" />
-                      <span className="text-[7px] font-black text-white tracking-wide uppercase">Scannez-moi</span>
+                    <div className="flex items-center gap-1 bg-[#F97316] rounded-lg px-2.5 py-1 shadow-lg w-full max-w-[85px] justify-center">
+                      <Smartphone className="w-2.5 h-2.5 text-white shrink-0" />
+                      <span className="text-[7.5px] font-black text-white tracking-wide uppercase whitespace-nowrap">Scannez-moi</span>
                     </div>
                   </div>
                 </div>
 
                 {/* ── Zone gauche / centrale ── */}
                 <div className="absolute inset-0 w-[62%] flex flex-col justify-between p-4">
-                  {/* Ligne haute : Logo */}
-                  <div className="flex items-start gap-2">
-                    <div className="w-9 h-9 rounded-full overflow-hidden bg-black/40 border border-white/10 shrink-0 flex items-center justify-center relative">
-                      <Image
-                        src="/images/BarakoKeneyanoir.png"
-                        alt="Logo"
-                        fill
-                        className="object-cover scale-110"
-                      />
-                    </div>
-                    <div className="flex flex-col leading-[1.1]">
-                      <div className="flex items-baseline space-x-1">
-                        <span className="text-sm font-extrabold tracking-wide text-white">Baarako</span>
-                        <span className="text-sm font-extrabold tracking-wide text-[#F97316]">Jobcard</span>
+                  {/* Ligne haute : Logo de l'organisation */}
+                  {activeHolderOrg ? (
+                    <div className="flex flex-col items-start leading-none gap-0.5 max-w-[90%]">
+                      <div className="h-10 relative aspect-[2.8/1] flex items-center">
+                        <img
+                          src={activeHolderOrg.logoUrl}
+                          alt={activeHolderOrg.name}
+                          className="h-full w-auto object-contain"
+                          crossOrigin="anonymous"
+                        />
                       </div>
-                      <span className="text-[7.5px] text-white/80 font-medium tracking-wide">
-                        Votre carrière entre de bonnes mains
-                      </span>
+                      {activeHolderOrg.description && (
+                        <span className="text-[6.5px] text-white/80 font-semibold tracking-wide">
+                          {activeHolderOrg.description}
+                        </span>
+                      )}
                     </div>
-                  </div>
+                  ) : (
+                    /* Logo Baarako Jobcard par défaut */
+                    <div className="flex items-start gap-2">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-black/40 border border-white/10 shrink-0 flex items-center justify-center relative">
+                        <Image
+                          src="/images/BarakoKeneyanoir.png"
+                          alt="Logo"
+                          fill
+                          className="object-cover scale-110"
+                        />
+                      </div>
+                      <div className="flex flex-col leading-[1.1]">
+                        <div className="flex items-baseline space-x-1">
+                          <span className="text-sm font-extrabold tracking-wide text-white">Baarako</span>
+                          <span className="text-sm font-extrabold tracking-wide text-[#F97316]">Jobcard</span>
+                        </div>
+                        <span className="text-[7.5px] text-white/80 font-medium tracking-wide">
+                          Votre carrière entre de bonnes mains
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Ligne basse : Photo + Infos */}
                   <div className="flex items-end gap-3 mt-auto">
                     {/* Photo de profil */}
-                    <div className="relative w-[30%] aspect-[3/4] rounded-xl overflow-hidden border border-white/20 shadow-lg shrink-0 bg-[#0B2040]">
+                    <div className="relative w-18 h-18 rounded-[20px] overflow-hidden border border-white/20 shadow-lg shrink-0 bg-[#0B2040]">
                       <Image
                         src={activeHolder.avatarUrl || "/avatars/ousmane.png"}
                         alt={activeHolder.name}
@@ -380,16 +410,16 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
 
                     {/* Infos textuelles */}
                     <div className="flex-1 pb-1 min-w-0">
-                      <h4 className="text-sm font-bold text-white leading-tight truncate">
+                      <h4 className="text-sm font-extrabold text-white leading-tight truncate">
                         {activeHolder.name}
                       </h4>
-                      <p className="text-[9.5px] text-[#16A34A] font-semibold mt-0.5 truncate">
+                      <p className="text-[9.5px] text-[#16A34A] font-bold mt-0.5 truncate leading-none">
                         {activeHolder.title}
                       </p>
 
                       {/* Badge disponibilité */}
-                      <div className="pt-1">
-                        <span className={`inline-block text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                      <div className="pt-1.5">
+                        <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg ${
                           activeHolder.availability === "available"
                             ? "bg-[#16A34A] text-white"
                             : "bg-red-600 text-white"
@@ -400,8 +430,8 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
                     </div>
                   </div>
 
-                  {/* ID */}
-                  <div className="text-[8px] font-semibold text-[#16A34A] tracking-wider mt-1.5 leading-none">
+                  {/* ID sous la photo de profil */}
+                  <div className="text-[8.5px] font-bold text-[#16A34A] tracking-wider mt-2.5 leading-none">
                     ID : {activeHolder.id}
                   </div>
                 </div>
@@ -481,11 +511,15 @@ export function CardsTab({ holders, cards, onToggleCardStatus }: CardsTabProps) 
                     </div>
 
                     {/* Powered by */}
-                    <div className="flex flex-col items-end leading-none">
+                    <div className="flex flex-col items-end leading-none gap-0.5">
                       <span className="text-[5px] text-white/50 font-bold uppercase tracking-widest">Powered by</span>
-                      <span className="text-[8px] font-black text-white mt-0.5">
-                        Baarako <span className="text-[#F97316]">Keněyaso</span>
-                      </span>
+                      <div className="h-4 relative aspect-[3/1] flex items-center">
+                        <img
+                          src="/images/logo.png"
+                          alt="Logo Baarako Keneyaso"
+                          className="h-full w-auto object-contain"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -369,6 +369,7 @@ export function AdminLayout() {
               <CardsTab
                 holders={holders}
                 cards={cards}
+                organizations={organizations}
                 onToggleCardStatus={handleToggleCardStatus}
               />
             )}
