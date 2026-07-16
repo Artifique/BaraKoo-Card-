@@ -30,10 +30,36 @@ interface ProfilePageProps {
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { slug } = await params
 
-  // 1. Rechercher les informations de la carte liée au slug
-  const card = await prisma.card.findUnique({
+  // 1. Rechercher les informations de la carte liée au slug (Cascade tolérante pour les accents et encodages Unicode)
+  let card = await prisma.card.findUnique({
     where: { slug }
   })
+
+  if (!card) {
+    try {
+      const decodedSlug = decodeURIComponent(slug)
+      // Essai avec le slug décodé
+      card = await prisma.card.findUnique({
+        where: { slug: decodedSlug }
+      })
+      
+      // Essai avec normalisation NFC (Composé, ex: ï en un seul caractère)
+      if (!card) {
+        card = await prisma.card.findUnique({
+          where: { slug: decodedSlug.normalize("NFC") }
+        })
+      }
+      
+      // Essai avec normalisation NFD (Décomposé, ex: i + tréma séparés)
+      if (!card) {
+        card = await prisma.card.findUnique({
+          where: { slug: decodedSlug.normalize("NFD") }
+        })
+      }
+    } catch (e) {
+      console.error("Erreur lors de la résolution du slug :", e)
+    }
+  }
   
   // Si la carte n'existe pas, afficher le message d'indisponibilité
   if (!card) {

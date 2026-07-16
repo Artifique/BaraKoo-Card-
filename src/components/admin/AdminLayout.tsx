@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Menu } from "lucide-react"
 import { AdminSidebar, ActiveTab } from "./AdminSidebar"
 import { AdminTopbar } from "./AdminTopbar"
+import { slugify } from "@/lib/utils"
 import { DashboardTab } from "./tabs/DashboardTab"
 import { HoldersTab } from "./tabs/HoldersTab"
 import { CardsTab } from "./tabs/CardsTab"
@@ -111,7 +112,7 @@ export function AdminLayout() {
 
       if (resHolder.ok && createdHolder) {
         // 2. Création et association de la carte NFC/QR physique correspondante
-        const newSlug = createdHolder.name.toLowerCase().trim().replace(/\s+/g, "-")
+        const newSlug = slugify(createdHolder.name)
         const newCardId = `card-${Date.now()}`
         
         const resCard = await fetch("/api/cards", {
