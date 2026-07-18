@@ -5,7 +5,7 @@ import * as React from "react"
 import { AdminLayout } from "@/components/admin/AdminLayout"
 
 /**
- * Routeur d'affichage client pour le back-office Baarako Card.
+ * Routeur d'affichage client pour le back-office Baarako Cards.
  * La logique de chargement de données et d'onglets est déportée 
  * dans le composant AdminLayout pour favoriser la maintenance.
  */
