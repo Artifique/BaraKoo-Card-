@@ -30,7 +30,7 @@ export function PublicDocumentsSection({ holderId, holderName, cvUrl, lettreMoti
     try {
       const data = new FormData()
       data.append("file", file)
-      data.append("bucket", "bucket-images")
+      data.append("bucket", "bucket-documents")
       data.append("prefix", `visitor-${holderId}-${type}`)
 
       const res = await fetch("/api/upload", {

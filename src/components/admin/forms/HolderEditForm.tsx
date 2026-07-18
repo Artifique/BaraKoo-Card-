@@ -32,7 +32,7 @@ export function HolderEditForm({ holder, onClose, onSubmit, organizations }: Hol
     try {
       const data = new FormData()
       data.append("file", file)
-      data.append("bucket", "bucket-images")
+      data.append("bucket", "bucket-documents")
       data.append("prefix", prefix)
 
       const res = await fetch("/api/upload", {

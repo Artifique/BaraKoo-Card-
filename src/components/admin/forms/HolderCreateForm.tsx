@@ -52,7 +52,7 @@ export function HolderCreateForm({ onClose, onSubmit, initialId, organizations }
     try {
       const data = new FormData()
       data.append("file", file)
-      data.append("bucket", "bucket-images")
+      data.append("bucket", "bucket-documents")
       data.append("prefix", prefix)
 
       const res = await fetch("/api/upload", {
