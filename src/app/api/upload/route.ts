@@ -17,24 +17,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Configuration Supabase manquante dans .env" }, { status: 500 })
     }
 
+    const bucket = (formData.get("bucket") as string) || "bucket-images"
+    const prefix = (formData.get("prefix") as string) || "logo"
+
     // Créer un nom de fichier unique sécurisé
-    const extension = file.name.split(".").pop() || "png"
+    const extension = file.name.split(".").pop() || "bin"
     const randomId = Math.random().toString(36).substring(2, 15)
-    const fileName = `logo-${Date.now()}-${randomId}.${extension}`
+    const fileName = `${prefix}-${Date.now()}-${randomId}.${extension}`
 
     // Lire les données du fichier sous forme de buffer
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
     // Appeler l'API de stockage Supabase directement
-    const uploadUrl = `${supabaseUrl}/storage/v1/object/bucket-images/${fileName}`
+    const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${fileName}`
 
     const response = await fetch(uploadUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${supabaseKey}`,
         "apikey": supabaseKey,
-        "Content-Type": file.type || "image/png"
+        "Content-Type": file.type || "application/octet-stream"
       },
       body: buffer
     })
@@ -45,8 +48,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Erreur lors de l'envoi vers le stockage Supabase" }, { status: response.status })
     }
 
-    // Construire l'URL publique de l'image stockée
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/bucket-images/${fileName}`
+    // Construire l'URL publique du fichier stocké
+    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${fileName}`
 
     return NextResponse.json({ url: publicUrl })
   } catch (erreur) {

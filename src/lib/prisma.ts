@@ -65,7 +65,9 @@ export function mapperPrismaVersHolder(p: any): CardHolder {
       id: p.service.id,
       nom: p.service.nom,
       description: p.service.description
-    } : null
+    } : null,
+    cvUrl: p.cvUrl ?? null,
+    lettreMotivationUrl: p.lettreMotivationUrl ?? null
   }
 }
 

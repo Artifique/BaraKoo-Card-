@@ -35,6 +35,10 @@ export interface CardHolder {
     nom: string
     description?: string | null
   } | null
+
+  // Documents
+  cvUrl?: string | null
+  lettreMotivationUrl?: string | null
 }
 
 /**

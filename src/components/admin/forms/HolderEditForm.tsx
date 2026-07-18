@@ -19,6 +19,38 @@ export function HolderEditForm({ holder, onClose, onSubmit, organizations }: Hol
   const [formData, setFormData] = useState<CardHolder>({ ...holder })
 
   const [uploading, setUploading] = useState(false)
+  const [uploadingCv, setUploadingCv] = useState(false)
+  const [uploadingLettre, setUploadingLettre] = useState(false)
+
+  const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: "cvUrl" | "lettreMotivationUrl", prefix: string) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (fieldName === "cvUrl") setUploadingCv(true)
+    else setUploadingLettre(true)
+
+    try {
+      const data = new FormData()
+      data.append("file", file)
+      data.append("bucket", "bucket-images")
+      data.append("prefix", prefix)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      })
+
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || "Erreur de téléversement")
+
+      setFormData(prev => ({ ...prev, [fieldName]: result.url }))
+    } catch (erreur: any) {
+      alert("Erreur de téléversement : " + erreur.message)
+    } finally {
+      if (fieldName === "cvUrl") setUploadingCv(false)
+      else setUploadingLettre(false)
+    }
+  }
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -259,6 +291,73 @@ export function HolderEditForm({ holder, onClose, onSubmit, organizations }: Hol
                 onChange={e => setFormData(prev => ({ ...prev, googleMapsUrl: e.target.value }))}
                 className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-orange"
               />
+            </div>
+          </div>
+
+          {/* Section d'upload de documents (CV & Lettre de motivation) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border/20">
+            <div className="space-y-1.5">
+              <label className="text-xs text-muted-foreground font-semibold block">Curriculum Vitae (CV)</label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  onChange={(e) => handleUploadDocument(e, "cvUrl", "cv")}
+                  disabled={uploadingCv}
+                  className="hidden"
+                  id="cv-edit-input"
+                />
+                <label
+                  htmlFor="cv-edit-input"
+                  className={`
+                    inline-block px-3 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all duration-300
+                    ${uploadingCv 
+                      ? "bg-secondary text-muted-foreground border-border/30" 
+                      : "bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border-brand-orange/20"
+                    }
+                  `}
+                >
+                  {uploadingCv ? "Téléchargement..." : formData.cvUrl ? "Remplacer le CV" : "Téléverser le CV"}
+                </label>
+                {formData.cvUrl && (
+                  <span className="text-[10px] text-brand-green font-semibold truncate max-w-[150px]">
+                    ✓ Chargé
+                  </span>
+                )}
+              </div>
+              <p className="text-[9px] text-muted-foreground">Formats acceptés : PDF, DOCX (Max 5Mo)</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-muted-foreground font-semibold block">Lettre de Motivation</label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  onChange={(e) => handleUploadDocument(e, "lettreMotivationUrl", "lettre")}
+                  disabled={uploadingLettre}
+                  className="hidden"
+                  id="lettre-edit-input"
+                />
+                <label
+                  htmlFor="lettre-edit-input"
+                  className={`
+                    inline-block px-3 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all duration-300
+                    ${uploadingLettre 
+                      ? "bg-secondary text-muted-foreground border-border/30" 
+                      : "bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border-brand-orange/20"
+                    }
+                  `}
+                >
+                  {uploadingLettre ? "Téléchargement..." : formData.lettreMotivationUrl ? "Remplacer la Lettre" : "Téléverser la Lettre"}
+                </label>
+                {formData.lettreMotivationUrl && (
+                  <span className="text-[10px] text-brand-green font-semibold truncate max-w-[150px]">
+                    ✓ Chargé
+                  </span>
+                )}
+              </div>
+              <p className="text-[9px] text-muted-foreground">Formats acceptés : PDF, DOCX (Max 5Mo)</p>
             </div>
           </div>
 

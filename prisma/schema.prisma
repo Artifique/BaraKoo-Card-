@@ -101,6 +101,11 @@ model CardHolder {
   twitter       String?
   siteWeb       String?
 
+  /// URL du CV (PDF/DOCX) stocké dans Supabase Storage
+  cvUrl               String?
+  /// URL de la lettre de motivation stockée dans Supabase Storage
+  lettreMotivationUrl String?
+
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
