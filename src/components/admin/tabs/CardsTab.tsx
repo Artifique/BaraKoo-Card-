@@ -13,6 +13,7 @@ import {
   GraduationCap,
   Briefcase,
   Award,
+  FolderOpen,
   Users,
   ShieldCheck,
   Download,
@@ -320,8 +321,8 @@ export function CardsTab({ holders, cards, organizations, onToggleCardStatus }: 
                           </div>
                         )}
                       </div>
-                      <span className="text-[6px] sm:text-[7px] text-gray-300 font-extrabold mt-1 uppercase tracking-wider text-center max-w-[65px] leading-none">
-                        {activeHolderOrg?.name ? activeHolderOrg.name.substring(0, 22) : "Ministère de la justice"}
+                      <span className="text-[6px] sm:text-[7px] text-gray-300 font-extrabold mt-1 uppercase tracking-wider text-center max-w-[80px] leading-tight break-words">
+                        {activeHolderOrg?.name || "Ministère de la justice"}
                       </span>
                     </div>
 
@@ -410,85 +411,104 @@ export function CardsTab({ holders, cards, organizations, onToggleCardStatus }: 
                   ══════════════════════════════════════════ */
               <div
                 ref={cardRef}
-                className="w-full rounded-2xl shadow-2xl relative overflow-hidden text-white select-none border border-white/10 flex flex-col justify-between p-4"
+                className="w-full rounded-[24px] shadow-2xl relative overflow-hidden text-white select-none border border-white/10 flex flex-col justify-between"
                 style={{
-                  backgroundColor: "#0c2547",
+                  backgroundColor: "#041124",
                   aspectRatio: "1.586 / 1",
+                  padding: "5% 6%",
                 }}
               >
-                {/* Titre du verso */}
-                <div className="text-center mt-1">
-                  <h3 className="text-xs font-bold tracking-wide">
-                    Un accès <span className="text-[#16A34A]">instantané</span> à mon profil digital
+                {/* ── Titre centré ── */}
+                <div className="text-center">
+                  <h3 className="text-[10px] sm:text-xs font-bold tracking-wide">
+                    Un accès{" "}
+                    <span className="text-[#16A34A] font-bold">instantané</span>{" "}
+                    à mon profil digital
                   </h3>
                 </div>
 
-                {/* Les 5 bulles de compétences/profil */}
-                <div className="flex justify-center items-center gap-2.5 my-auto">
-                  {/* CV & Profil */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-9 h-9 rounded-full border-2 border-[#16A34A] flex items-center justify-center bg-[#16A34A]/5">
-                      <User className="w-4 h-4 text-white" />
+                {/* ── 6 Icônes de compétences/profil ── */}
+                <div className="flex justify-between items-start w-full px-1">
+
+                  {/* CV & Profil — cercle vert rempli foncé */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#16A34A] flex items-center justify-center" style={{ backgroundColor: "#0a2d0a" }}>
+                      <User className="w-[18px] h-[18px] text-white" />
                     </div>
-                    <span className="text-[6.5px] font-bold text-white tracking-tight whitespace-nowrap">CV & Profil</span>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">CV &amp; Profil</span>
                   </div>
 
-                  {/* Diplômes */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-9 h-9 rounded-full border-2 border-[#2563EB] flex items-center justify-center bg-[#2563EB]/5">
-                      <GraduationCap className="w-4 h-4 text-white" />
+                  {/* Diplômes — cercle bleu */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#2563EB] flex items-center justify-center" style={{ backgroundColor: "#0a0a2e" }}>
+                      <GraduationCap className="w-[18px] h-[18px] text-[#60a5fa]" />
                     </div>
-                    <span className="text-[6.5px] font-bold text-white tracking-tight whitespace-nowrap">Diplômes</span>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">Diplômes</span>
                   </div>
 
-                  {/* Expériences */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-9 h-9 rounded-full border-2 border-[#F97316] flex items-center justify-center bg-[#F97316]/5">
-                      <Briefcase className="w-4 h-4 text-white" />
+                  {/* Expériences — cercle orange, valise orange */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#F97316] flex items-center justify-center" style={{ backgroundColor: "#2a1000" }}>
+                      <Briefcase className="w-[18px] h-[18px] text-[#F97316]" />
                     </div>
-                    <span className="text-[6.5px] font-bold text-white tracking-tight whitespace-nowrap">Expériences</span>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">Expériences</span>
                   </div>
 
-                  {/* Certifications */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-9 h-9 rounded-full border-2 border-[#16A34A] flex items-center justify-center bg-[#16A34A]/5">
-                      <Award className="w-4 h-4 text-white" />
+                  {/* Certifications — cercle vert, médaille verte */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#16A34A] flex items-center justify-center" style={{ backgroundColor: "#0a2d0a" }}>
+                      <Award className="w-[18px] h-[18px] text-[#16A34A]" />
                     </div>
-                    <span className="text-[6.5px] font-bold text-white tracking-tight whitespace-nowrap">Certifications</span>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">Certifications</span>
                   </div>
 
-                  {/* Références */}
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-9 h-9 rounded-full border-2 border-[#F97316] flex items-center justify-center bg-[#F97316]/5">
-                      <Users className="w-4 h-4 text-white" />
+                  {/* Portfolio — cercle bleu, dossier bleu */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#2563EB] flex items-center justify-center" style={{ backgroundColor: "#0a0a2e" }}>
+                      <FolderOpen className="w-[18px] h-[18px] text-[#60a5fa]" />
                     </div>
-                    <span className="text-[6.5px] font-bold text-white tracking-tight whitespace-nowrap">Références</span>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">Portfolio</span>
                   </div>
+
+                  {/* Références — cercle orange, groupe orange */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border-[2.5px] border-[#F97316] flex items-center justify-center" style={{ backgroundColor: "#2a1000" }}>
+                      <Users className="w-[18px] h-[18px] text-[#F97316]" />
+                    </div>
+                    <span className="text-[6px] font-semibold text-white tracking-tight whitespace-nowrap">Références</span>
+                  </div>
+
                 </div>
 
-                {/* Ligne basse et crédits */}
+                {/* ── Pied de page : Blockchain + séparateur + Logo ── */}
                 <div className="w-full">
-                  <div className="border-t border-white/10 my-2.5" />
-                  <div className="flex justify-between items-center">
-                    {/* Blockchain note */}
-                    <div className="flex items-center space-x-1 max-w-[65%]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-white shrink-0" />
-                      <span className="text-[5.8px] text-white/85 leading-tight">
-                        Vos informations sont sécurisées et authentifiées avec la technologie blockchain.
+                  <div className="border-t border-white/15 mb-3" />
+                  <div className="flex items-center gap-3">
+
+                    {/* Shield + texte */}
+                    <div className="flex items-center gap-2.5 flex-1">
+                      <ShieldCheck className="w-7 h-7 text-white shrink-0" strokeWidth={1.5} />
+                      <span className="text-[7px] sm:text-[8px] text-white/80 leading-snug">
+                        Vos informations sont sécurisées et authentifiées<br />
+                        avec la technologie blockchain.
                       </span>
                     </div>
 
-                    {/* Powered by */}
-                    <div className="flex flex-col items-end leading-none gap-0.5">
-                      <span className="text-[5px] text-white/50 font-bold uppercase tracking-widest">Powered by</span>
-                      <div className="h-4 relative aspect-[3.5/1] flex items-center">
+                    {/* Séparateur vertical */}
+                    <div className="w-px self-stretch bg-white/20 shrink-0" />
+
+                    {/* Powered by + logo.png */}
+                    <div className="flex flex-col items-start gap-0.5 pl-2">
+                      <span className="text-[6px] text-white/50 font-semibold uppercase tracking-wider">Powered by</span>
+                      <div className="h-7 flex items-center">
                         <img
-                          src="/images/BarakoKeneyanoir.png"
-                          alt="Logo Baarako Keneyaso"
+                          src="/images/logo.png"
+                          alt="Baarako Kenèyaso"
                           className="h-full w-auto object-contain"
                         />
                       </div>
                     </div>
+
                   </div>
                 </div>
               </div>

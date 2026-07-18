@@ -162,8 +162,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                   )}
                 </div>
-                <span className="text-[6px] sm:text-[7px] text-gray-300 font-extrabold mt-1 uppercase tracking-wider text-center max-w-[65px] leading-none">
-                  {org?.nom ? org.nom.substring(0, 22) : "Ministère de la justice"}
+                <span className="text-[6px] sm:text-[7px] text-gray-300 font-extrabold mt-1 uppercase tracking-wider text-center max-w-[80px] leading-tight break-words">
+                  {org?.nom || "Ministère de la justice"}
                 </span>
               </div>
 
